@@ -7,6 +7,26 @@ import { generateKartaPDF } from '../services/pdf';
 const LogForm = ({ data, setData, onSave, onCancel }) => {
     const [isScanning, setIsScanning] = useState(false);
     const [error, setError] = useState(null);
+    const [expandedRows, setExpandedRows] = useState({});
+
+    const toggleRow = (id) => {
+        setExpandedRows(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
+    const expandAll = () => {
+        const allExpanded = {};
+        data.rows.forEach(row => {
+            allExpanded[row.id] = true;
+        });
+        setExpandedRows(allExpanded);
+    };
+
+    const collapseAll = () => {
+        setExpandedRows({});
+    };
 
     const handleInputChange = (field, value) => {
         setData({ ...data, [field]: value });
@@ -175,6 +195,15 @@ const LogForm = ({ data, setData, onSave, onCancel }) => {
                         <span style={{ fontWeight: '600' }}>Generuj PDF</span>
                     </button>
                 </div>
+
+                <div className="mobile-only" style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                    <button onClick={expandAll} className="glass" style={{ flex: 1, padding: '8px', fontSize: '0.8rem', color: 'var(--primary)' }}>
+                        Rozwiń wszystko
+                    </button>
+                    <button onClick={collapseAll} className="glass" style={{ flex: 1, padding: '8px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        Zwiń wszystko
+                    </button>
+                </div>
             </div>
 
             <div className="karta-container">
@@ -222,39 +251,87 @@ const LogForm = ({ data, setData, onSave, onCancel }) => {
                     </table>
                 </div>
 
-                <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {data.rows.map((row, index) => (
-                        <div key={row.id} className="glass p-4" style={{ position: 'relative' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
-                                <span style={{ fontWeight: 'bold' }}>Pozycja {index + 1}</span>
-                                <button onClick={() => removeRow(index)} style={{ color: 'var(--accent)' }}>
-                                    <Trash2 size={18} />
-                                </button>
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                {KARTA_COLUMNS.map(col => (
-                                    <div key={col.key} style={{ gridColumn: col.key === 'company' || col.key === 'notes' ? '1 / -1' : 'auto' }}>
-                                        <label style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block' }}>{col.label}</label>
-                                        {col.type === 'checkbox' ? (
-                                            <input
-                                                type="checkbox"
-                                                checked={row[col.key]}
-                                                onChange={(e) => handleRowChange(index, col.key, e.target.checked)}
-                                                style={{ width: '24px', height: '24px', marginTop: '4px' }}
-                                            />
-                                        ) : (
-                                            <input
-                                                value={row[col.key]}
-                                                onChange={(e) => handleRowChange(index, col.key, e.target.value)}
-                                                placeholder="..."
-                                                style={{ fontSize: '0.9rem', width: '100%', padding: '4px 0' }}
-                                            />
-                                        )}
+                <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {data.rows.map((row, index) => {
+                        const isExpanded = expandedRows[row.id];
+                        return (
+                            <div key={row.id} className={`glass card-collapsible ${isExpanded ? 'expanded' : ''}`} style={{ overflow: 'hidden' }}>
+                                <div
+                                    onClick={() => toggleRow(row.id)}
+                                    style={{
+                                        padding: '12px 16px',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        cursor: 'pointer',
+                                        background: isExpanded ? 'rgba(var(--primary-rgb), 0.05)' : 'transparent'
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{
+                                            width: '24px',
+                                            height: '24px',
+                                            borderRadius: '50%',
+                                            backgroundColor: 'var(--primary)',
+                                            color: 'white',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            {index + 1}
+                                        </div>
+                                        <div style={{ fontSize: '0.9rem', fontWeight: '600' }}>
+                                            {row.city || 'Brak miasta'}
+                                            <span style={{ fontWeight: '400', color: 'var(--text-muted)', marginLeft: '8px' }}>
+                                                {row.arrivalTime || row.departureTime || '--:--'}
+                                            </span>
+                                        </div>
                                     </div>
-                                ))}
+                                    <div style={{ color: 'var(--primary)', fontSize: '0.8rem' }}>
+                                        {isExpanded ? 'Zwiń' : 'Rozwiń'}
+                                    </div>
+                                </div>
+
+                                {isExpanded && (
+                                    <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }} className="animate-fade-in">
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                            {KARTA_COLUMNS.map(col => (
+                                                <div key={col.key} style={{ gridColumn: col.key === 'company' || col.key === 'notes' ? '1 / -1' : 'auto' }}>
+                                                    <label style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block' }}>{col.label}</label>
+                                                    {col.type === 'checkbox' ? (
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={row[col.key]}
+                                                            onChange={(e) => handleRowChange(index, col.key, e.target.checked)}
+                                                            style={{ width: '24px', height: '24px', marginTop: '4px' }}
+                                                        />
+                                                    ) : (
+                                                        <input
+                                                            value={row[col.key]}
+                                                            onChange={(e) => handleRowChange(index, col.key, e.target.value)}
+                                                            placeholder="..."
+                                                            style={{ fontSize: '0.9rem', width: '100%', padding: '4px 0' }}
+                                                        />
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px dotted var(--border)' }}>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); removeRow(index); }}
+                                                className="glass"
+                                                style={{ color: 'var(--accent)', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem' }}
+                                            >
+                                                <Trash2 size={16} /> Usuń przystanek
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 <button

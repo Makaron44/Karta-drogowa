@@ -117,3 +117,23 @@ input:focus {
   outline: none;
   border-bottom: 1px solid var(--primary);
 }
+
+:root {
+  --primary-rgb: 37, 99, 235;
+}
+
+.card-collapsible {
+  transition: all 0.3s ease;
+  border: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.card-collapsible.expanded {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 12px;
+}
+
+.card-collapsible:not(.expanded):active {
+  background: rgba(var(--primary-rgb), 0.1);
+}
