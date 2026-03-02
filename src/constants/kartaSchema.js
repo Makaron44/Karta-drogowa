@@ -1,0 +1,52 @@
+export const INITIAL_KARTA_DATA = {
+    driverName: '',
+    driver2Name: '',
+    registrationNumber: '',
+    trailerNumber: '',
+    generalNotes: '',
+    rows: [
+        {
+            id: crypto.randomUUID(),
+            date: '',
+            arrivalTime: '',
+            departureTime: '',
+            postcode: '',
+            city: '',
+            company: '',
+            loading: false,
+            unloading: false,
+            exchange: false,
+            border: false,
+            stoppage: false,
+            routeNo: '',
+            notes: '',
+            tons: '',
+            fuelDkv: '',
+            fuelIds: '',
+            fuelLotos: '',
+            fuelAdBlue: '',
+            odometer: '',
+        }
+    ]
+};
+
+export const KARTA_COLUMNS = [
+    { key: 'date', label: 'Data' },
+    { key: 'arrivalTime', label: 'Przyjazd' },
+    { key: 'departureTime', label: 'Odjazd' },
+    { key: 'postcode', label: 'Kod' },
+    { key: 'city', label: 'Miejscowość' },
+    { key: 'company', label: 'Firma' },
+    { key: 'loading', label: 'Zał', type: 'checkbox' },
+    { key: 'unloading', label: 'Roz', type: 'checkbox' },
+    { key: 'exchange', label: 'Wym', type: 'checkbox' },
+    { key: 'border', label: 'Gra', type: 'checkbox' },
+    { key: 'stoppage', label: 'Pos', type: 'checkbox' },
+    { key: 'notes', label: 'Uwagi' },
+    { key: 'tons', label: 'Tony' },
+    { key: 'fuelDkv', label: 'DKV' },
+    { key: 'fuelIds', label: 'IDS' },
+    { key: 'fuelLotos', label: 'Lotos' },
+    { key: 'fuelAdBlue', label: 'AdBlue' },
+    { key: 'odometer', label: 'Licznik' },
+];
