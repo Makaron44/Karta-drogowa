@@ -78,6 +78,90 @@ const Settings = ({ onBack }) => {
                         <Save size={18} /> {isSaved ? 'Zapisano!' : 'Zapisz klucz'}
                     </button>
                 </div>
+
+                <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '32px 0' }} />
+
+                <h2 style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                    <Save size={24} color="var(--secondary)" /> Kopia zapasowa
+                </h2>
+
+                <div className="mb-6">
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '16px', lineHeight: '1.5' }}>
+                        Pobierz wszystkie zapisane karty do pliku lub wgraj je z powrotem. Pozwala to na przeniesienie danych na inne urządzenie.
+                    </p>
+
+                    <div style={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
+                        <button
+                            onClick={() => {
+                                const dataStr = JSON.stringify(history, null, 2);
+                                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                                const exportFileDefaultName = `karta_drogowa_backup_${new Date().toISOString().split('T')[0]}.json`;
+
+                                const linkElement = document.createElement('a');
+                                linkElement.setAttribute('href', dataUri);
+                                linkElement.setAttribute('download', exportFileDefaultName);
+                                linkElement.click();
+                            }}
+                            className="glass"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '10px',
+                                padding: '12px',
+                                color: 'var(--text)'
+                            }}
+                        >
+                            Pobierz kopię (.json)
+                        </button>
+
+                        <label
+                            className="glass"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '10px',
+                                padding: '12px',
+                                color: 'var(--secondary)',
+                                cursor: 'pointer',
+                                border: '1px dashed var(--secondary)'
+                            }}
+                        >
+                            Wgraj kopię z pliku
+                            <input
+                                type="file"
+                                accept=".json"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (!file) return;
+
+                                    const reader = new FileReader();
+                                    reader.onload = (event) => {
+                                        try {
+                                            const imported = JSON.parse(event.target.result);
+                                            if (Array.isArray(imported)) {
+                                                if (window.confirm(`Czy chcesz wgrać ${imported.length} kart? Dane zostaną połączone z obecnymi.`)) {
+                                                    // Merge logic: avoid duplicates by ID
+                                                    const existingIds = new Set(history.map(h => h.id));
+                                                    const newEntries = imported.filter(item => !existingIds.has(item.id));
+                                                    setHistory([...newEntries, ...history]);
+                                                    alert('Pomyślnie zaimportowano dane!');
+                                                }
+                                            } else {
+                                                alert('Błędny format pliku backupu.');
+                                            }
+                                        } catch (err) {
+                                            alert('Błąd podczas odczytu pliku.');
+                                        }
+                                    };
+                                    reader.readAsText(file);
+                                }}
+                            />
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     );

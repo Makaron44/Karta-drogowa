@@ -118,7 +118,14 @@ function App() {
           />
         )}
         {activeTab === 'settings' && (
-          <Settings onBack={() => setActiveTab('dashboard')} />
+          <Settings
+            history={history}
+            setHistory={(newHistory) => {
+              setHistory(newHistory);
+              localStorage.setItem('karta_history', JSON.stringify(newHistory));
+            }}
+            onBack={() => setActiveTab('dashboard')}
+          />
         )}
         {activeTab === 'history' && (
           <div className="animate-fade-in">
