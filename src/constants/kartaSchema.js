@@ -3,6 +3,7 @@ export const INITIAL_KARTA_DATA = {
     driver2Name: '',
     registrationNumber: '',
     trailerNumber: '',
+    initialFuel: '',
     generalNotes: '',
     rows: [
         {

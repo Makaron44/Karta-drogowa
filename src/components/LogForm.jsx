@@ -159,6 +159,16 @@ const LogForm = ({ data, setData, onSave, onCancel }) => {
                         />
                     </div>
                     <div className="glass p-3">
+                        <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Stan paliwa (początek)</label>
+                        <input
+                            type="number"
+                            value={data.initialFuel}
+                            onChange={(e) => handleInputChange('initialFuel', e.target.value)}
+                            placeholder="np. 400"
+                            style={{ textAlign: 'left', fontSize: '1rem' }}
+                        />
+                    </div>
+                    <div className="glass p-3">
                         <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Drugi kierowca</label>
                         <input
                             value={data.driver2Name}

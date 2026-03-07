@@ -113,23 +113,25 @@ export function generateKartaPDF(data) {
     const endOdo = parseFloat(data.rows[data.rows.length - 1]?.odometer) || 0;
     const totalKm = endOdo > startOdo ? endOdo - startOdo : 0;
 
-    const totalFuel = data.rows.reduce((sum, row) => {
+    const initialFuel = parseFloat(data.initialFuel) || 0;
+    const tankedFuel = data.rows.reduce((sum, row) => {
         return sum + (parseFloat(row.fuelDkv) || 0) + (parseFloat(row.fuelIds) || 0) + (parseFloat(row.fuelLotos) || 0);
     }, 0);
+    const totalFuel = initialFuel + tankedFuel;
 
-    const avgFuel = totalKm > 0 ? ((totalFuel / totalKm) * 100).toFixed(2) : '0.00';
+    const avgFuel = totalKm > 0 ? ((tankedFuel / totalKm) * 100).toFixed(2) : '0.00';
 
     let finalY = doc.lastAutoTable.finalY + 12;
 
     // Check if we have space on page
-    if (finalY > 175) {
+    if (finalY > 165) {
         doc.addPage();
         finalY = 25;
     }
 
-    // Calculations Box with Background
+    // Calculations Box with Background - Expanded to fit more info
     doc.setFillColor(240, 245, 250);
-    doc.roundedRect(14, finalY - 5, 95, 40, 3, 3, 'F');
+    doc.roundedRect(14, finalY - 5, 95, 55, 3, 3, 'F');
 
     doc.setFontSize(11);
     doc.setTextColor(41, 128, 185);
@@ -138,18 +140,24 @@ export function generateKartaPDF(data) {
     doc.setTextColor(44, 62, 80);
     doc.setFontSize(10);
     doc.text(`Suma kilometrów:`, 18, finalY + 10);
-    doc.text(`${totalKm} km`, 75, finalY + 10, { align: 'right' });
+    doc.text(`${totalKm} km`, 90, finalY + 10, { align: 'right' });
 
-    doc.text(`Suma paliwa:`, 18, finalY + 17);
-    doc.text(`${totalFuel.toFixed(2)} L`, 75, finalY + 17, { align: 'right' });
+    doc.text(`Stan paliwa (początek):`, 18, finalY + 17);
+    doc.text(`${initialFuel} L`, 90, finalY + 17, { align: 'right' });
 
-    doc.text(`Średnie spalanie:`, 18, finalY + 24);
+    doc.text(`Zatankowano:`, 18, finalY + 24);
+    doc.text(`${tankedFuel.toFixed(2)} L`, 90, finalY + 24, { align: 'right' });
+
+    doc.text(`Łącznie paliwo:`, 18, finalY + 31);
+    doc.text(`${totalFuel.toFixed(2)} L`, 90, finalY + 31, { align: 'right' });
+
+    doc.text(`Średnie spalanie:`, 18, finalY + 38);
     doc.setTextColor(192, 57, 43); // Subtle Red for efficiency
-    doc.text(`${avgFuel} L/100km`, 75, finalY + 24, { align: 'right' });
+    doc.text(`${avgFuel} L/100km`, 90, finalY + 38, { align: 'right' });
 
     doc.setTextColor(44, 62, 80);
-    doc.text(`Stan licznika:`, 18, finalY + 31);
-    doc.text(`${startOdo} -> ${endOdo}`, 90, finalY + 31, { align: 'right' });
+    doc.text(`Stan licznika:`, 18, finalY + 45);
+    doc.text(`${startOdo} -> ${endOdo}`, 90, finalY + 45, { align: 'right' });
 
     // General Notes Box
     doc.setFillColor(252, 252, 252);
